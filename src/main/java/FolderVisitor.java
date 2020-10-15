@@ -1,11 +1,13 @@
 import java.io.IOException;
-
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 class FolderVisitor extends SimpleFileVisitor<Path> {
+
+    public static int numFilesTouched;
+    public static int numFilesAltered;
 
     public enum CryptoMode{
     ENCRYPT,
@@ -15,9 +17,11 @@ class FolderVisitor extends SimpleFileVisitor<Path> {
     private boolean flag;
     private Path sourceRoot;
     private final CryptoMode mode;
+
     public FolderVisitor(CryptoMode mode) {
-this.mode=mode;
-this.flag=true;
+        numFilesTouched=0;
+        this.mode=mode;
+        this.flag=true;
         }
 
     @Override
@@ -42,18 +46,25 @@ this.flag=true;
 
 
         if(mode==CryptoMode.ENCRYPT) {
-            FileEncrypter.encryptFile(file);
+            if(FileEncrypter.encryptFile(file)){
+                numFilesAltered++;
+            }
+            numFilesTouched++;
             return FileVisitResult.CONTINUE;
         }
         if(mode==CryptoMode.DECRYPT){
-           FileEncrypter.decryptFile(file);
-                return FileVisitResult.CONTINUE;
+           if(FileEncrypter.decryptFile(file)){
+               numFilesAltered++;
+           }
+            numFilesTouched++;
 
-        }
             return FileVisitResult.CONTINUE;
 
+        }
+        numFilesTouched++;
+            return FileVisitResult.CONTINUE;
     }
-
+    
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
         System.out.println("File visit failed at :"+file.toAbsolutePath());

@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Scanner;
 import java.util.stream.Stream;
 
 class MoveFolder implements FileVisitor<Path> {
@@ -87,40 +86,50 @@ class MoveFolder implements FileVisitor<Path> {
         System.out.println(f);
         if (f) {
             if (this.skip) {
-                ;
-                System.out.println("1");
             }
             else if (this.replace) {
                 Files.delete(resolvedPath);
                 Files.move(file, resolvedPath);
-                System.out.println("2");
             } else {
-                System.out.println("File " + relativizedPath + " already exists in folder " + targetRoot + ". Please choose an action to take.\n1. Skip\n2. Replace\n3. Skip all\n4. Replace all");
-                Scanner s = new Scanner(System.in);
-                switch (Integer.parseInt(s.nextLine())) {
-                    case 1:
-                        System.out.println("File Skipped");
-                        break;
-                    case 2:
-                        System.out.println("File replaced");
-                        Files.delete(resolvedPath);
-                        Files.move(file, resolvedPath);
-                        break;
-                    case 3:
-                        System.out.println("All duplicate files will be skipped");
-                        skip = true;
-                        break;
-                    case 4:
-                        System.out.println("All duplicate files will be replaced");
-                        Files.delete(resolvedPath);
-                        Files.move(file, resolvedPath);
-                        replace = true;
-                        break;
+                boolean validChoiceMade=true;
+
+                do{
+                    switch (Controller.dupFileAlert(relativizedPath, targetRoot)) {
+                        case 1:
+                            System.out.println("File Skipped");
+                            validChoiceMade=true;
+                            break;
+                        case 2:
+                            System.out.println("File replaced");
+                            Files.delete(resolvedPath);
+                            Files.move(file, resolvedPath);
+                            validChoiceMade=true;
+                            break;
+                        case 3:
+                            System.out.println("All duplicate files will be skipped");
+                            skip = true;
+                            validChoiceMade=true;
+
+                            break;
+                        case 4:
+                            System.out.println("All duplicate files will be replaced");
+                            Files.delete(resolvedPath);
+                            Files.move(file, resolvedPath);
+                            replace = true;
+                            validChoiceMade=true;
+                            break;
+                        case 5:
+                            Controller.regAlert("Process Terminated", "Process terminated. Your files may be partially moved", "Click to continue");
+                            return FileVisitResult.TERMINATE;
+                        case 0:
+                            validChoiceMade=false;
+                            break;
                 }
-                System.out.println("3");
+                }while(!validChoiceMade);
+
+
             }
         } else {
-            System.out.println("4");
             Files.move(file, resolvedPath);
         }
         return FileVisitResult.CONTINUE;

@@ -4,22 +4,42 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class GUILoader extends Application {
 
+    private Controller controller;
+
+    @Override
+    public void stop() throws Exception {
+        System.out.println("stage closing");
+        controller.save();
+    }
 
     @Override
     public void start (Stage primaryStage) throws Exception{
-        Parent root= FXMLLoader.load(getClass().getResource("sample.fxml"));
-        Scene scene=new Scene(root);
 
-        primaryStage.setTitle("otter");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
+        Parent root = loader.load();
+        this.controller= loader.getController();
+
+
+
+        Scene scene=new Scene(root);
+//        controller.setStage(primaryStage);
+//        controller.setScene(scene);
+
+
+        primaryStage.setTitle("OTTERED");
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.centerOnScreen();
+
+
+
     }
+
+
 
 
 }
