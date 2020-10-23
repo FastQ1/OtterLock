@@ -5,7 +5,7 @@ public class SettingEditor {
 
     private String srcFolder;
     private String destFolder;
-    private String settingsFolder="src\\main\\resources\\Settings.txt";
+    private final String settingsFolder="src"+File.separator+ "main" +File.separator+ "resources" + File.separator+ "Settings.txt";
     private boolean checked;
 
     public SettingEditor() throws IOException {

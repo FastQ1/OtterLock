@@ -11,7 +11,7 @@ public class FileEncrypter {
     private static final String fileExtension = ".ottered";
 
 
-    public static void main(String[] args) throws IOException {
+//    public static void main(String[] args) throws IOException {
 
 
 //safeEncryptFolder(fileFolder, topSecret);
@@ -22,10 +22,10 @@ public class FileEncrypter {
 //        System.out.println(checkForDecryptedFiles(fileFolder));
 //        Objects.requireNonNull(compareDirectories(fileFolder, topSecret)).forEach(System.out::println);
 //            decryptFolder(fileFolder);
-    }
+//    }
 
 
-    public static boolean safeCryptFolder(Path folder, boolean checkingForEncrypted) throws IOException {
+    public static void safeCryptFolder(Path folder, boolean checkingForEncrypted) throws IOException {
         if (FileEncrypter.cryptCheck(folder, checkingForEncrypted)) {
             if (checkingForEncrypted) {
                 FileEncrypter.encryptFolder(folder);
@@ -43,7 +43,6 @@ public class FileEncrypter {
         }
 
 
-        return false;
     }
 
     public static boolean cryptCheck(Path folder, boolean checkingForEncrypted) throws IOException {
@@ -66,6 +65,7 @@ public class FileEncrypter {
 
         Set<Path> check = FileEncrypter.checkFolder(folder, true, checkingForEncrypted);
 
+        assert check != null;
         if (!check.isEmpty()) {
             switch (Controller.cryptAlert(check, true, checkingForEncrypted)) {
                 case 1:
@@ -85,7 +85,6 @@ public class FileEncrypter {
 
         if (keepGoing) {
             keepGoing = (cryptCheck(folder, true));
-
 
             if (keepGoing) {
                 Set<Path> check2 = FileEncrypter.checkFolder(locationFolder, false, false);
@@ -122,9 +121,9 @@ public class FileEncrypter {
         if (keepGoing) {
             keepGoing = (cryptCheck(folder, false));
 
-
             if (keepGoing) {
                 Set<Path> check2 = FileEncrypter.checkFolder(locationFolder, false, true);
+                assert check2 != null;
                 if (!check2.isEmpty()) {
                     switch (Controller.cryptAlert(check2, false, true)) {
                         case 1:
@@ -138,14 +137,12 @@ public class FileEncrypter {
                             }
                     }
                 }
-
             }
             if (keepGoing) {
                 decryptFolder(folder, locationFolder);
                 int temp=FolderVisitor.numFilesAltered;
                 FolderVisitor.numFilesAltered=0;
                 Controller.regAlert("Success!", temp + " Files Decrypted.", "Press OK to continue");
-
             } else {
                 Controller.regAlert("No Action Made", "No action was made. Your files are unaltered", "Press OK to continue");
             }
@@ -177,9 +174,6 @@ public class FileEncrypter {
                 case 4:
                     TempSettings.choice = TempSettings.duplicateDirectoryChoice.MOVE;
                     break;
-
-
-
             }
         }
         return keepGoing;
@@ -187,12 +181,7 @@ public class FileEncrypter {
 
 
     public static void encryptFolder(Path folder) throws IOException {
-        System.out.println("hi");
-        try {
             Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.ENCRYPT));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void encryptFolder(Path folder, Path locationFolder) throws IOException {
@@ -202,11 +191,7 @@ public class FileEncrypter {
     }
 
     public static void decryptFolder(Path folder) throws IOException {
-        try {
             Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.DECRYPT));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void decryptFolder(Path folder, Path locationFolder) throws IOException {
@@ -216,11 +201,7 @@ public class FileEncrypter {
 
 
     public static void moveFolder(Path folder, Path locationFolder) throws IOException {
-        try {
             Files.walkFileTree(folder, new MoveFolder(folder, locationFolder));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static Set<Path> checkFolder(Path folder, boolean checkingSource, boolean checkingForEncrypted) throws IOException {
@@ -235,16 +216,13 @@ public class FileEncrypter {
                         .collect(Collectors.toSet());
             }
         }
-        if (!checkingSource) {
-            try (Stream<Path> files = Files.walk(folder)) {
-                return files
-                        .filter(Files::isRegularFile)
-                        .filter(f -> !(TempSettings.choice.equals(TempSettings.duplicateDirectoryChoice.REPLACE) && TempSettings.exclusionSet.contains(f.getParent())))
-                        .filter(f -> (checkingForEncrypted) == f.toString().contains(fileExtension))
-                        .collect(Collectors.toSet());
-            }
+        try (Stream<Path> files = Files.walk(folder)) {
+            return files
+                    .filter(Files::isRegularFile)
+                    .filter(f -> !(TempSettings.choice.equals(TempSettings.duplicateDirectoryChoice.REPLACE) && TempSettings.exclusionSet.contains(f.getParent())))
+                    .filter(f -> (checkingForEncrypted) == f.toString().contains(fileExtension))
+                    .collect(Collectors.toSet());
         }
-        return null;
     }
 
 
@@ -288,11 +266,8 @@ public class FileEncrypter {
             byte[] encrypted = encrypt(raw);
 
             Files.write(destination, encrypted);
-            try {
                 Files.delete(source);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         } else {
             System.out.println("File " + source.toString() + " already contains extension " + fileExtension + ". No action was made on this file");
             return false;
@@ -307,11 +282,8 @@ public class FileEncrypter {
             byte[] decrypted = decrypt(raw);
 
             Files.write(destination, decrypted);
-            try {
                 Files.delete(source);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         } else {
             System.out.println("File " + source.toString() + " does not contain " + fileExtension + ". No action was made on this file");
             return false;

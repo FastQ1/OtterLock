@@ -12,7 +12,7 @@ class FolderVisitor extends SimpleFileVisitor<Path> {
     public enum CryptoMode{
     ENCRYPT,
     DECRYPT,
-    DEFAULT,
+//    DEFAULT,
     }
     private boolean flag;
     private Path sourceRoot;
@@ -25,7 +25,7 @@ class FolderVisitor extends SimpleFileVisitor<Path> {
         }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         if(flag){
             sourceRoot = dir;
             System.out.println("Sourceroot in folderVisitor: "+sourceRoot.toString());
@@ -66,7 +66,7 @@ class FolderVisitor extends SimpleFileVisitor<Path> {
     }
     
     @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+    public FileVisitResult visitFileFailed(Path file, IOException exc) {
         System.out.println("File visit failed at :"+file.toAbsolutePath());
         return FileVisitResult.TERMINATE;
         //Can make this a conditional

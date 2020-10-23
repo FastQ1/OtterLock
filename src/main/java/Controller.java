@@ -33,7 +33,10 @@ public class Controller {
 
 
 
-    public void initialize() throws IOException {
+    public void initialize() {
+        try{
+
+
         SettingEditor se = new SettingEditor();
         cBox.setSelected(se.isChecked());
         selected=cBox.isSelected();
@@ -60,6 +63,7 @@ public class Controller {
                             }catch (OutOfMemoryError e){
                                 OOMAlert();
                             } catch (IOException e) {
+                                IOAlert();
                                 e.printStackTrace();
                             }finally {
                                 progressIndicator.setVisible(false);
@@ -75,6 +79,7 @@ public class Controller {
                     }catch (OutOfMemoryError e){
                         OOMAlert();
                     } catch (IOException e) {
+                        IOAlert();
                         e.printStackTrace();
 
                     }finally {
@@ -98,6 +103,7 @@ public class Controller {
                             }catch (OutOfMemoryError e){
                                 OOMAlert();
                             } catch (IOException e) {
+                                IOAlert();
                                 e.printStackTrace();
                             }finally {
                                 progressIndicator.setVisible(false);
@@ -112,6 +118,7 @@ public class Controller {
                     } catch (OutOfMemoryError e){
                         OOMAlert();
                     } catch (IOException e) {
+                        IOAlert();
                         e.printStackTrace();
                     }finally{
                         progressIndicator.setVisible(false);
@@ -122,7 +129,9 @@ public class Controller {
             }
         });
 
-
+        }catch (Exception e){
+            regAlert("Unexpected Error", "An unexpected error has occured while loading", "Press OK to continue");
+        }
     }
 
 
@@ -199,6 +208,7 @@ public class Controller {
         alert.getButtonTypes().setAll(buttonTypeTwo, buttonTypeThree, buttonTypeFour, buttonTypeCancel);
 
         Optional<ButtonType> result = alert.showAndWait();
+        assert result.isPresent();
         if (result.get() == buttonTypeTwo) {
             return 2;
         }else if (result.get()== buttonTypeThree){
@@ -260,14 +270,15 @@ public class Controller {
 
 
         Optional<ButtonType> result = alert.showAndWait();
+        assert result.isPresent();
         if(result.get()== buttonTypeOne){
             return 2;
         }
-        else if (result.get() == buttonTypeTwo) {
+        else if (result.get()== (buttonTypeTwo)) {
             return 2;
-        }else if (result.get()== buttonTypeThree){
+        }else if (result.get() == buttonTypeThree){
                 return 3;
-        }else if(result.get()==buttonTypeCancel){
+        }else if(result.get() ==buttonTypeCancel){
             return 1;
         }else{
             return 1;
@@ -293,6 +304,7 @@ public class Controller {
         alert.getButtonTypes().setAll(btn1, btn2, btn3, btn4, cancel);
         Optional<ButtonType>result= alert.showAndWait();
 
+        assert result.isPresent();
         if(result.get()==btn1){
             return 1;
         }else if (result.get()==btn2){
@@ -332,11 +344,8 @@ public class Controller {
         alert.setContentText(context);
         alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
         Optional<ButtonType> result=alert.showAndWait();
-        if(result.get()==ButtonType.YES){
-            return true;
-        }else{
-            return false;
-        }
+        assert result.isPresent();
+        return result.get() == ButtonType.YES;
     }
 
 
@@ -346,11 +355,8 @@ public class Controller {
         alert.setHeaderText(header);
         alert.setContentText(context);
         Optional<ButtonType> result=alert.showAndWait();
-        if(result.get()==ButtonType.OK){
-            return true;
-        }else{
-            return false;
-        }
+        assert result.isPresent();
+        return result.get() == ButtonType.OK;
     }
 
     public static void regAlert(String title, String header, String context){
@@ -363,8 +369,12 @@ public class Controller {
 
     }
 
+    public static void IOAlert(){
+        regAlert("Unexpected Error", "An unexpected error occured while trying to read or write files", "Press OK to continue");
+    }
+
     public void save() throws IOException {
-        SettingEditor s=new SettingEditor(sourceField.getText(), destField.getText(), cBox.isSelected());
+        new SettingEditor(sourceField.getText(), destField.getText(), cBox.isSelected());
     }
 
 }
