@@ -5,13 +5,8 @@ public class SettingEditor {
 
     private String srcFolder;
     private String destFolder;
-//    private String settingsFolder="C:\\Users\\pat\\IdeaProjects\\ENCRYPTER_MAVEN\\src\\main\\java\\Settings.txt";
     private String settingsFolder="src\\main\\resources\\Settings.txt";
     private boolean checked;
-
-
-    //read settings folder
-    //specifically read
 
     public SettingEditor() throws IOException {
         System.out.println("no argument constructor called");
@@ -30,7 +25,6 @@ public class SettingEditor {
             p.setProperty("destFolder", "");
             p.store(os, null);
         }else{
-            //change this before shipping
             if(p.getProperty("checkBox")!=null){
                 checked=p.getProperty("checkBox").equals("t");
             }
@@ -71,7 +65,6 @@ public class SettingEditor {
         p.store(os,null);
 
     }
-
 
 
     public String getSrcFolder() {

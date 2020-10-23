@@ -68,6 +68,7 @@
                         <Image url="@OtterLock.png" />
                      </image>
                   </ImageView>
+                  <ProgressIndicator fx:id="progressIndicator" progress="0.0" />
                </children></TextFlow>
                 <GridPane style="-fx-background-color: #6780AC;">
                     <columnConstraints>

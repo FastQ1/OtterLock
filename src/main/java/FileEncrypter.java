@@ -9,9 +9,6 @@ import java.util.stream.Stream;
 
 public class FileEncrypter {
     private static final String fileExtension = ".ottered";
-//    private static final Path fileFolder= Paths.get("E:\\EncrypterTest\\FileFolder");
-//    private static final Path topSecret= Paths.get("E:\\EncrypterTest\\TopSecret");
-//    private static final Path otherFolder= Paths.get();
 
 
     public static void main(String[] args) throws IOException {
@@ -50,10 +47,19 @@ public class FileEncrypter {
     }
 
     public static boolean cryptCheck(Path folder, boolean checkingForEncrypted) throws IOException {
-        if (folder.getParent().toFile().getName().equals("E:") || folder.getParent().toFile().getName().equals("C:")) {
-            System.out.println("Failsafe executed");
-            return false;
-        }
+
+        
+        try{
+            if (folder.getParent().toFile().getName().equals("E:") || folder.getParent().toFile().getName().equals("C:")) {
+                System.out.println("Failsafe executed");
+                return false;
+            }
+        }catch (NullPointerException e){
+            Controller.regAlert("Error", "Drive detected", "This program does not aim to encrypt an entire drive. Please choose a directory instead");
+                return false;
+            }
+
+
 
 
         boolean keepGoing = true;
@@ -79,19 +85,11 @@ public class FileEncrypter {
 
         if (keepGoing) {
             keepGoing = (cryptCheck(folder, true));
-//                    Set<Path> check=FileEncrypter.checkFolder(folder, true, true);
-//                    if (!check.isEmpty()){
-//                        switch(Controller.cryptAlert(check, true, true)){
-//                            case 1:
-//                                keepGoing=false;
-//                                break;
-//                            case 4:
-//                                break;
-//                        }
-//                    }
+
 
             if (keepGoing) {
                 Set<Path> check2 = FileEncrypter.checkFolder(locationFolder, false, false);
+                assert check2 != null;
                 if (!check2.isEmpty()) {
                     switch (Controller.cryptAlert(check2, false, false)) {
                         case 1:
@@ -124,16 +122,6 @@ public class FileEncrypter {
         if (keepGoing) {
             keepGoing = (cryptCheck(folder, false));
 
-//                    Set<Path> check=FileEncrypter.checkFolder(folder, true, false);
-//                    if (!check.isEmpty()){
-//                        switch(Controller.cryptAlert(check, true, false)){
-//                            case 1:
-//                                keepGoing=false;
-//                                break;
-//                            case 4:
-//                                break;
-//                        }
-//                    }
 
             if (keepGoing) {
                 Set<Path> check2 = FileEncrypter.checkFolder(locationFolder, false, true);
@@ -174,8 +162,7 @@ public class FileEncrypter {
         Set<Path> comp = compareDirectories(source, location);
         if (comp != null) {
             TempSettings.exclusionSet = comp;
-//            System.out.println(comp.size()+" Duplicate directories found. Please enter an option: \n1. Abort" +
-//                    "\n2. Skip these directories\n3. Replace existing directories\n4. Move files to location directory");
+
             switch (Controller.dupAlert(comp)) {
                 case 1:
                     keepGoing = false;
@@ -192,20 +179,7 @@ public class FileEncrypter {
                     break;
 
 
-//                    System.out.println("This option will delete all files in the target directory. Are you sure you want to continue? 1 to continue, 2 to abort");
-//                    int var=Integer.parseInt(s.nextLine());
-//                    if(var==1){
-//                        TempSettings.choice= TempSettings.duplicateDirectoryChoice.REPLACE;
-//                        System.out.println("accepted case 3");
-//                        break;
-//                    }if(var==2){
-//                    break;
-//                }
-//                case 4:
-//                    TempSettings.choice= TempSettings.duplicateDirectoryChoice.MOVE;
-//            }
-//            System.out.println();
-//        }
+
             }
         }
         return keepGoing;
@@ -213,15 +187,6 @@ public class FileEncrypter {
 
 
     public static void encryptFolder(Path folder) throws IOException {
-        //Check for encrypted files and
-//        switch(Controller.dupAlert()){
-//            case 1:
-//                System.out.println("abort!!");
-//                break;
-//            case 2:
-//                System.out.println("continue!!!");
-//                break;
-//        }
         System.out.println("hi");
         try {
             Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.ENCRYPT));

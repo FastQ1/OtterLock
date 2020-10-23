@@ -1,20 +1,10 @@
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-
-import java.io.InvalidObjectException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,29 +28,8 @@ public class Controller {
     private CheckBox cBox;
 
     @FXML
-    private TextField fileExtension;
+    private ProgressIndicator progressIndicator;
 
-    @FXML
-    private Button swap;
-
-    @FXML
-    private Button sourceButton;
-
-    @FXML
-    private Button destButton;
-
-
-
-    @FXML
-    public void exitApplication(ActionEvent event){
-        Platform.exit();
-    }
-
-    private Stage stage;
-    private Scene scene;
-
-    private Stage popup2;
-    private Stage popup3;
 
 
 
@@ -71,13 +40,13 @@ public class Controller {
         destField.setDisable(!selected);
         sourceField.setText(se.getSrcFolder());
         destField.setText(se.getDestFolder());
-
-        //if sourcefield/destfield empty:
-        //{textArea.setPromptText("source folder here...")};
+        progressIndicator.setVisible(false);
+        progressIndicator.setProgress(-1);
         cBox.setOnAction((event) -> {
             selected = cBox.isSelected();
             destField.setDisable(!selected);
         });
+
 
 
         encryptButton.setOnAction(event -> {
@@ -86,9 +55,14 @@ public class Controller {
                     if(checkPath(sourceField.getText(), destField.getText())){
                         if(Paths.get(destField.getText()).toFile().isDirectory()){
                             try {
+                                progressIndicator.setVisible(true);
                                 FileEncrypter.safeEncryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
+                            }catch (OutOfMemoryError e){
+                                OOMAlert();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            }finally {
+                                progressIndicator.setVisible(false);
                             }
                         }else{
                             invalidDirectoryAlert();
@@ -96,9 +70,15 @@ public class Controller {
                     }
                 } else {
                     try {
+                        progressIndicator.setVisible(true);
                         FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), true);
+                    }catch (OutOfMemoryError e){
+                        OOMAlert();
                     } catch (IOException e) {
                         e.printStackTrace();
+
+                    }finally {
+                        progressIndicator.setVisible(false);
                     }
                 }
             }else{
@@ -113,9 +93,14 @@ public class Controller {
                     if(checkPath(sourceField.getText(), destField.getText())) {
                         if (Paths.get(destField.getText()).toFile().isDirectory()) {
                             try {
+                                progressIndicator.setVisible(true);
                                 FileEncrypter.safeDecryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
+                            }catch (OutOfMemoryError e){
+                                OOMAlert();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            }finally {
+                                progressIndicator.setVisible(false);
                             }
                         } else {
                             invalidDirectoryAlert();
@@ -124,8 +109,12 @@ public class Controller {
                 } else {
                     try {
                         FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), false);
+                    } catch (OutOfMemoryError e){
+                        OOMAlert();
                     } catch (IOException e) {
                         e.printStackTrace();
+                    }finally{
+                        progressIndicator.setVisible(false);
                     }
                 }
             }else{
@@ -134,61 +123,13 @@ public class Controller {
         });
 
 
-//
-//            if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
-//                if (destField.getText().isEmpty()) {
-//                    try {
-//                        if(FileEncrypter.cryptCheck(Paths.get(sourceField.getText()), true)) {
-//                            Controller.regAlert("Success!", FolderVisitor.numFilesAltered+" Files Encrypted.", "Press ok to continue");
-//                            FileEncrypter.encryptFolder(Paths.get(sourceField.getText()));
-//                        }else{
-//                            Controller.regAlert("No Action Made", "No action was made. Your files are unaltered", "Press ok to continue");
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else if (Paths.get(destField.getText()).toFile().isDirectory()) {
-//                    try {
-//                        FileEncrypter.safeEncryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else {
-//                    System.out.println("invalid destination path");
-//                }
-//
-//            }
-
-
-//        decryptButton.setOnAction(event -> {
-//
-//            if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
-//                if (destField.getText().isEmpty()) {
-//                    try {
-//                        if(FileEncrypter.cryptCheck(Paths.get(sourceField.getText()), false)){
-//                                Controller.regAlert("Success!", FolderVisitor.numFilesAltered+" Files Decrypted.", "Press ok to continue");
-//                                FileEncrypter.decryptFolder(Paths.get(sourceField.getText()));
-//                            }else{
-//                                Controller.regAlert("No Action Made", "No action was made. Your files are unaltered", "Press ok to continue");
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else if (Paths.get(destField.getText()).toFile().isDirectory()) {
-//                    try {
-//                        FileEncrypter.safeDecryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else {
-//                    System.out.println("invalid destination path!!!");
-//                }
-//
-//            }
-//        });
-
     }
 
+
+
+    private void OOMAlert(){
+        regAlert("Out of Memory", "Try crypting a smaller amount of data", "Press OK to continue");
+    }
 
         private boolean checkPath(String source, String dest){
         Path pathSource=Paths.get(source);
@@ -205,13 +146,6 @@ public class Controller {
 
         }
 
-    public boolean driveCheck(Path p){
-        Path pa=p.toAbsolutePath();
-        if (pa.getParent()==null){
-            return false;
-        }
-        return true;
-    }
 
     public void sourceButtonAction() {
         DirectoryChooser fc = new DirectoryChooser();
@@ -263,7 +197,6 @@ public class Controller {
             ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         alert.getButtonTypes().setAll(buttonTypeTwo, buttonTypeThree, buttonTypeFour, buttonTypeCancel);
-//            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, ButtonBar.ButtonData.CANCEL_CLOSE);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == buttonTypeTwo) {
@@ -302,7 +235,6 @@ public class Controller {
         }
         String capitalCrypt=encryptedOrDecrypted.substring(0, 1).toUpperCase()+encryptedOrDecrypted.substring(1);
         String capitalOppositeCrypt=oppositeCrypt.substring(0, 1).toUpperCase()+oppositeCrypt.substring(1);
-        String capitalLoc=sourceOrDestination.substring(0, 1).toUpperCase()+sourceOrDestination.substring(1);
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         if(cryptedSet.size()==1){
@@ -317,7 +249,6 @@ public class Controller {
 
         ButtonType buttonTypeOne=new ButtonType("Skip");
         ButtonType buttonTypeTwo = new ButtonType("Move");
-        //return same value, just different labels. CHECK HOW TO GET MOVE BUTTON TO SHOW
         ButtonType buttonTypeThree = new ButtonType(capitalOppositeCrypt);
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
@@ -325,9 +256,6 @@ public class Controller {
             alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
         }else{
             alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeThree, buttonTypeCancel);
-            //encrypt or decrypt (same as method, opposite of whatever its checking for)
-            //cancel button
-            //
         }
 
 
@@ -437,10 +365,6 @@ public class Controller {
 
     public void save() throws IOException {
         SettingEditor s=new SettingEditor(sourceField.getText(), destField.getText(), cBox.isSelected());
-
-
     }
-
-
 
 }

@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,12 +21,7 @@ public class GUILoader extends Application {
         Parent root = loader.load();
         this.controller= loader.getController();
 
-
-
         Scene scene=new Scene(root);
-//        controller.setStage(primaryStage);
-//        controller.setScene(scene);
-
 
         primaryStage.setTitle("OTTERED");
         primaryStage.setScene(scene);
