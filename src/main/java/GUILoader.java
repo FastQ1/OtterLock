@@ -23,6 +23,8 @@ public class GUILoader extends Application {
 
         Scene scene=new Scene(root);
 
+//        primaryStage.sizeToScene();
+//        primaryStage.setResizable(false);
         primaryStage.setTitle("OTTERED");
         primaryStage.setScene(scene);
         primaryStage.show();

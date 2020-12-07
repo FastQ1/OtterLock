@@ -5,8 +5,10 @@ public class SettingEditor {
 
     private String srcFolder;
     private String destFolder;
-    private final String settingsFolder="src"+File.separator+ "main" +File.separator+ "resources" + File.separator+ "Settings.txt";
     private boolean checked;
+
+    private final String f=File.separator;
+    private final String settingsFolder="src"+f+ "main" +f+ "resources" + f+ "Settings.txt";
 
     public SettingEditor() throws IOException {
         System.out.println("no argument constructor called");

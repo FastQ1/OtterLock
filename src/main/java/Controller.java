@@ -34,8 +34,8 @@ public class Controller {
 
 
     public void initialize() {
-        try{
 
+        try{
 
         SettingEditor se = new SettingEditor();
         cBox.setSelected(se.isChecked());
