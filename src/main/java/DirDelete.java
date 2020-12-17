@@ -10,14 +10,14 @@ public class DirDelete extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        System.out.println("File to delete: "+file);
+        System.out.println("File to delete: " + file);
         Files.delete(file);
         return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        System.out.println("Dir to delete: "+dir);
+        System.out.println("Dir to delete: " + dir);
         Files.delete(dir);
         return FileVisitResult.CONTINUE;
     }

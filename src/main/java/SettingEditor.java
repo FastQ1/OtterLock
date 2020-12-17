@@ -7,18 +7,18 @@ public class SettingEditor {
     private String destFolder;
     private boolean checked;
 
-    private final String f=File.separator;
-    private final String settingsFolder="src"+f+ "main" +f+ "resources" + f+ "Settings.txt";
+    private final String f = File.separator;
+    private final String settingsFolder = "src" + f + "main" + f + "resources" + f + "Settings.txt";
 
     public SettingEditor() throws IOException {
         System.out.println("no argument constructor called");
-        File settingsFile=new File(settingsFolder);
+        File settingsFile = new File(settingsFolder);
         settingsFile.createNewFile();
-        Properties p=new Properties();
-        InputStream is=new FileInputStream(settingsFolder);
+        Properties p = new Properties();
+        InputStream is = new FileInputStream(settingsFolder);
         p.load(is);
-        if(p.getProperty("firstLoad")==null){
-            OutputStream os=new FileOutputStream(settingsFolder);
+        if (p.getProperty("firstLoad") == null) {
+            OutputStream os = new FileOutputStream(settingsFolder);
             //set to default property if null
             p.setProperty("firstLoad", "f");
             p.setProperty("fileExtension", ".ottered");
@@ -26,15 +26,15 @@ public class SettingEditor {
             p.setProperty("srcFolder", "");
             p.setProperty("destFolder", "");
             p.store(os, null);
-        }else{
-            if(p.getProperty("checkBox")!=null){
-                checked=p.getProperty("checkBox").equals("t");
+        } else {
+            if (p.getProperty("checkBox") != null) {
+                checked = p.getProperty("checkBox").equals("t");
             }
-            if(p.getProperty("srcFolder")!=null){
-                srcFolder= p.getProperty("srcFolder");
+            if (p.getProperty("srcFolder") != null) {
+                srcFolder = p.getProperty("srcFolder");
             }
-            if(p.get("destFolder")!=null){
-                destFolder= p.getProperty("destFolder");
+            if (p.get("destFolder") != null) {
+                destFolder = p.getProperty("destFolder");
             }
             System.out.println(srcFolder);
             System.out.println(destFolder);
@@ -42,29 +42,28 @@ public class SettingEditor {
     }
 
 
-
     public SettingEditor(String srcFolder, String destFolder, boolean checked) throws IOException {
         this.srcFolder = srcFolder;
         this.destFolder = destFolder;
-        this.checked=checked;
-        Properties p=new Properties();
-        OutputStream os=new FileOutputStream(settingsFolder);
+        this.checked = checked;
+        Properties p = new Properties();
+        OutputStream os = new FileOutputStream(settingsFolder);
         p.setProperty("firstLoad", "f");
 
         System.out.println(srcFolder);
         System.out.println(destFolder);
-        if(srcFolder!=null){
+        if (srcFolder != null) {
             p.setProperty("srcFolder", srcFolder);
         }
-        if(destFolder!=null){
+        if (destFolder != null) {
             p.setProperty("destFolder", destFolder);
         }
-        if(checked){
+        if (checked) {
             p.setProperty("checkBox", "t");
-        }else{
+        } else {
             p.setProperty("checkBox", "f");
         }
-        p.store(os,null);
+        p.store(os, null);
 
     }
 
@@ -72,9 +71,11 @@ public class SettingEditor {
     public String getSrcFolder() {
         return srcFolder;
     }
+
     public String getDestFolder() {
         return destFolder;
     }
+
     public boolean isChecked() {
         return checked;
     }

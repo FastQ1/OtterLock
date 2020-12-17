@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class Controller {
 
-    private boolean selected=false;
+    private boolean selected = false;
 
     @FXML
     private Button encryptButton;
@@ -31,129 +31,125 @@ public class Controller {
     private ProgressIndicator progressIndicator;
 
 
-
-
     public void initialize() {
 
-        try{
+        try {
 
-        SettingEditor se = new SettingEditor();
-        cBox.setSelected(se.isChecked());
-        selected=cBox.isSelected();
-        destField.setDisable(!selected);
-        sourceField.setText(se.getSrcFolder());
-        destField.setText(se.getDestFolder());
-        progressIndicator.setVisible(false);
-        progressIndicator.setProgress(-1);
-        cBox.setOnAction((event) -> {
+            SettingEditor se = new SettingEditor();
+            cBox.setSelected(se.isChecked());
             selected = cBox.isSelected();
             destField.setDisable(!selected);
-        });
+            sourceField.setText(se.getSrcFolder());
+            destField.setText(se.getDestFolder());
+            progressIndicator.setVisible(false);
+            progressIndicator.setProgress(-1);
+            cBox.setOnAction((event) -> {
+                selected = cBox.isSelected();
+                destField.setDisable(!selected);
+            });
 
 
-
-        encryptButton.setOnAction(event -> {
-            if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
-                if (selected) {
-                    if(checkPath(sourceField.getText(), destField.getText())){
-                        if(Paths.get(destField.getText()).toFile().isDirectory()){
-                            try {
-                                progressIndicator.setVisible(true);
-                                FileEncrypter.safeEncryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
-                            }catch (OutOfMemoryError e){
-                                OOMAlert();
-                            } catch (IOException e) {
-                                IOAlert();
-                                e.printStackTrace();
-                            }finally {
-                                progressIndicator.setVisible(false);
+            encryptButton.setOnAction(event -> {
+                if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
+                    if (selected) {
+                        if (checkPath(sourceField.getText(), destField.getText())) {
+                            if (Paths.get(destField.getText()).toFile().isDirectory()) {
+                                try {
+                                    progressIndicator.setVisible(true);
+                                    FileEncrypter.safeEncryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
+                                } catch (OutOfMemoryError e) {
+                                    OOMAlert();
+                                } catch (IOException e) {
+                                    IOAlert();
+                                    e.printStackTrace();
+                                } finally {
+                                    progressIndicator.setVisible(false);
+                                }
+                            } else {
+                                invalidDirectoryAlert();
                             }
-                        }else{
-                            invalidDirectoryAlert();
+                        }
+                    } else {
+                        try {
+                            progressIndicator.setVisible(true);
+                            FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), true);
+                        } catch (OutOfMemoryError e) {
+                            OOMAlert();
+                        } catch (IOException e) {
+                            IOAlert();
+                            e.printStackTrace();
+
+                        } finally {
+                            progressIndicator.setVisible(false);
                         }
                     }
                 } else {
-                    try {
-                        progressIndicator.setVisible(true);
-                        FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), true);
-                    }catch (OutOfMemoryError e){
-                        OOMAlert();
-                    } catch (IOException e) {
-                        IOAlert();
-                        e.printStackTrace();
-
-                    }finally {
-                        progressIndicator.setVisible(false);
-                    }
+                    invalidDirectoryAlert();
                 }
-            }else{
-               invalidDirectoryAlert();
-            }
 
-        });
+            });
 
-        decryptButton.setOnAction(event -> {
-            if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
-                if (selected) {
-                    if(checkPath(sourceField.getText(), destField.getText())) {
-                        if (Paths.get(destField.getText()).toFile().isDirectory()) {
-                            try {
-                                progressIndicator.setVisible(true);
-                                FileEncrypter.safeDecryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
-                            }catch (OutOfMemoryError e){
-                                OOMAlert();
-                            } catch (IOException e) {
-                                IOAlert();
-                                e.printStackTrace();
-                            }finally {
-                                progressIndicator.setVisible(false);
+            decryptButton.setOnAction(event -> {
+                if (Paths.get(sourceField.getText()).toFile().isDirectory()) {
+                    if (selected) {
+                        if (checkPath(sourceField.getText(), destField.getText())) {
+                            if (Paths.get(destField.getText()).toFile().isDirectory()) {
+                                try {
+                                    progressIndicator.setVisible(true);
+                                    FileEncrypter.safeDecryptFolder(Paths.get(sourceField.getText()), Paths.get(destField.getText()));
+                                } catch (OutOfMemoryError e) {
+                                    OOMAlert();
+                                } catch (IOException e) {
+                                    IOAlert();
+                                    e.printStackTrace();
+                                } finally {
+                                    progressIndicator.setVisible(false);
+                                }
+                            } else {
+                                invalidDirectoryAlert();
                             }
-                        } else {
-                            invalidDirectoryAlert();
+                        }
+                    } else {
+                        try {
+                            FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), false);
+                        } catch (OutOfMemoryError e) {
+                            OOMAlert();
+                        } catch (IOException e) {
+                            IOAlert();
+                            e.printStackTrace();
+                        } finally {
+                            progressIndicator.setVisible(false);
                         }
                     }
                 } else {
-                    try {
-                        FileEncrypter.safeCryptFolder(Paths.get(sourceField.getText()), false);
-                    } catch (OutOfMemoryError e){
-                        OOMAlert();
-                    } catch (IOException e) {
-                        IOAlert();
-                        e.printStackTrace();
-                    }finally{
-                        progressIndicator.setVisible(false);
-                    }
+                    invalidDirectoryAlert();
                 }
-            }else{
-                invalidDirectoryAlert();
-            }
-        });
+            });
 
-        }catch (Exception e){
+        } catch (Exception e) {
             regAlert("Unexpected Error", "An unexpected error has occured while loading", "Press OK to continue");
         }
     }
 
 
-
-    private void OOMAlert(){
+    private void OOMAlert() {
         regAlert("Out of Memory", "Try crypting a smaller amount of data", "Press OK to continue");
     }
 
-        private boolean checkPath(String source, String dest){
-        Path pathSource=Paths.get(source);
-        Path pathDest=Paths.get(dest);
+    private boolean checkPath(String source, String dest) {
+        Path pathSource = Paths.get(source);
+        Path pathDest = Paths.get(dest);
 
-        if(dest.contains(pathSource.getName(pathSource.getNameCount()-1).toString())){
+        if (dest.contains(pathSource.getName(pathSource.getNameCount() - 1).toString())) {
             regAlert("Invalid Directory Mapping", "Your destination folder cannot be a child of your source folder", "Press OK to continue");
             return false;
-            }else if(source.contains(pathDest.getName(pathDest.getNameCount()-1).toString())){
+        } else if (source.contains(pathDest.getName(pathDest.getNameCount() - 1).toString())) {
             regAlert("Invalid Directory Mapping", "Your source folder cannot be a child of your destination folder", "Press OK to continue");
             return false;
         }
         return true;
 
-        }
+    }
 
 
     public void sourceButtonAction() {
@@ -188,13 +184,13 @@ public class Controller {
 
     public static int dupAlert(Set<Path> dirSet) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        if(dirSet.size()==1){
+        if (dirSet.size() == 1) {
             alert.setTitle("Duplicate Directory");
-            alert.setHeaderText(dirSet.size()+" Duplicate directory found -  "+dirSet.iterator().next());
+            alert.setHeaderText(dirSet.size() + " Duplicate directory found -  " + dirSet.iterator().next());
 
-        }else{
+        } else {
             alert.setTitle("Duplicate Directories");
-            alert.setHeaderText(dirSet.size()+" Duplicate directories found, including"+dirSet.iterator().next());
+            alert.setHeaderText(dirSet.size() + " Duplicate directories found, including" + dirSet.iterator().next());
         }
         alert.setContentText("Choose your option.");
 
@@ -203,7 +199,7 @@ public class Controller {
         ButtonType buttonTypeThree = new ButtonType("Replace");
         ButtonType buttonTypeFour = new ButtonType("Move");
 
-            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         alert.getButtonTypes().setAll(buttonTypeTwo, buttonTypeThree, buttonTypeFour, buttonTypeCancel);
 
@@ -211,17 +207,17 @@ public class Controller {
         assert result.isPresent();
         if (result.get() == buttonTypeTwo) {
             return 2;
-        }else if (result.get()== buttonTypeThree){
-            if(confirmationAlert("Confirmation", "This will delete all files in the destination folder's duplicate directories. Are you sure you want to proceed?", "Choose an option:")) {
+        } else if (result.get() == buttonTypeThree) {
+            if (confirmationAlert("Confirmation", "This will delete all files in the destination folder's duplicate directories. Are you sure you want to proceed?", "Choose an option:")) {
                 return 3;
-            }else{
+            } else {
                 return 1;
             }
-            }else if (result.get()==buttonTypeFour){
+        } else if (result.get() == buttonTypeFour) {
             return 4;
-        }else if(result.get()==buttonTypeCancel){
+        } else if (result.get() == buttonTypeCancel) {
             return 1;
-        }else{
+        } else {
             return 1;
         }
 
@@ -231,98 +227,94 @@ public class Controller {
         String encryptedOrDecrypted;
         String sourceOrDestination;
         String oppositeCrypt;
-        if (encrypted){
-            encryptedOrDecrypted="encrypt";
-            oppositeCrypt="decrypt";
-        }else{
-            encryptedOrDecrypted="decrypt";
-            oppositeCrypt="encrypt";
+        if (encrypted) {
+            encryptedOrDecrypted = "encrypt";
+            oppositeCrypt = "decrypt";
+        } else {
+            encryptedOrDecrypted = "decrypt";
+            oppositeCrypt = "encrypt";
         }
-        if(source){
-            sourceOrDestination="source";
-        }else{
-            sourceOrDestination="destination";
+        if (source) {
+            sourceOrDestination = "source";
+        } else {
+            sourceOrDestination = "destination";
         }
-        String capitalCrypt=encryptedOrDecrypted.substring(0, 1).toUpperCase()+encryptedOrDecrypted.substring(1);
-        String capitalOppositeCrypt=oppositeCrypt.substring(0, 1).toUpperCase()+oppositeCrypt.substring(1);
+        String capitalCrypt = encryptedOrDecrypted.substring(0, 1).toUpperCase() + encryptedOrDecrypted.substring(1);
+        String capitalOppositeCrypt = oppositeCrypt.substring(0, 1).toUpperCase() + oppositeCrypt.substring(1);
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        if(cryptedSet.size()==1){
-            alert.setTitle(capitalCrypt+"ed File Found");
-            alert.setHeaderText(encryptedOrDecrypted+"ed file "+cryptedSet.iterator().next().getFileName() +" found in "+sourceOrDestination+" folder.");
+        if (cryptedSet.size() == 1) {
+            alert.setTitle(capitalCrypt + "ed File Found");
+            alert.setHeaderText(encryptedOrDecrypted + "ed file " + cryptedSet.iterator().next().getFileName() + " found in " + sourceOrDestination + " folder.");
 
-        }else{
-            alert.setTitle(cryptedSet.size()+" "+capitalCrypt+"ed Files Found");
-            alert.setHeaderText(cryptedSet.size()+" "+capitalCrypt+"ed files found in "+sourceOrDestination+" folder, including "+cryptedSet.iterator().next());
+        } else {
+            alert.setTitle(cryptedSet.size() + " " + capitalCrypt + "ed Files Found");
+            alert.setHeaderText(cryptedSet.size() + " " + capitalCrypt + "ed files found in " + sourceOrDestination + " folder, including " + cryptedSet.iterator().next());
         }
         alert.setContentText("Choose your option.");
 
-        ButtonType buttonTypeOne=new ButtonType("Skip");
+        ButtonType buttonTypeOne = new ButtonType("Skip");
         ButtonType buttonTypeTwo = new ButtonType("Move");
         ButtonType buttonTypeThree = new ButtonType(capitalOppositeCrypt);
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        if(source){
+        if (source) {
             alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
-        }else{
+        } else {
             alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeThree, buttonTypeCancel);
         }
 
 
         Optional<ButtonType> result = alert.showAndWait();
         assert result.isPresent();
-        if(result.get()== buttonTypeOne){
+        if (result.get() == buttonTypeOne) {
             return 2;
-        }
-        else if (result.get()== (buttonTypeTwo)) {
+        } else if (result.get() == (buttonTypeTwo)) {
             return 2;
-        }else if (result.get() == buttonTypeThree){
-                return 3;
-        }else if(result.get() ==buttonTypeCancel){
+        } else if (result.get() == buttonTypeThree) {
+            return 3;
+        } else if (result.get() == buttonTypeCancel) {
             return 1;
-        }else{
+        } else {
             return 1;
         }
 
     }
 
 
-
-
-
-    public static int dupFileAlert(Path relativizedPath, Path targetRoot){
-        Alert alert=new Alert(Alert.AlertType.CONFIRMATION);
+    public static int dupFileAlert(Path relativizedPath, Path targetRoot) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Duplicate Files Found");
-        alert.setHeaderText("File "+relativizedPath+" already exists in directory "+targetRoot);
+        alert.setHeaderText("File " + relativizedPath + " already exists in directory " + targetRoot);
         alert.setContentText("Please choose an option");
 
-        ButtonType btn1=new ButtonType("Skip");
-        ButtonType btn2=new ButtonType("Replace");
-        ButtonType btn3=new ButtonType("Skip all");
-        ButtonType btn4=new ButtonType("Replace all");
-        ButtonType cancel=new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btn1 = new ButtonType("Skip");
+        ButtonType btn2 = new ButtonType("Replace");
+        ButtonType btn3 = new ButtonType("Skip all");
+        ButtonType btn4 = new ButtonType("Replace all");
+        ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(btn1, btn2, btn3, btn4, cancel);
-        Optional<ButtonType>result= alert.showAndWait();
+        Optional<ButtonType> result = alert.showAndWait();
 
         assert result.isPresent();
-        if(result.get()==btn1){
+        if (result.get() == btn1) {
             return 1;
-        }else if (result.get()==btn2){
+        } else if (result.get() == btn2) {
             return 2;
-        }else if (result.get()==btn3){
+        } else if (result.get() == btn3) {
             return 3;
-        }else if (result.get()==btn4){
+        } else if (result.get() == btn4) {
             return 4;
-        }else if (result.get()==cancel){
-            if(yesNoAlert("Confirmation", "Exiting now will likely leave you with a partially moved folder. Would you like to continue?", "Choose your option:")){
+        } else if (result.get() == cancel) {
+            if (yesNoAlert("Confirmation", "Exiting now will likely leave you with a partially moved folder. Would you like to continue?", "Choose your option:")) {
                 return 5;
-            }else{
+            } else {
                 return 0;
             }
-        }else{
-            if(yesNoAlert("Confirmation", "Exiting now will likely leave you with a partially encrypted folder. Would you like to continue?", "Choose your option:")){
+        } else {
+            if (yesNoAlert("Confirmation", "Exiting now will likely leave you with a partially encrypted folder. Would you like to continue?", "Choose your option:")) {
                 return 5;
-            }else{
+            } else {
                 return 0;
             }
         }
@@ -331,45 +323,44 @@ public class Controller {
     }
 
 
-        public static void invalidDirectoryAlert(){
-            regAlert("Invalid directory", "Please enter a valid directory", "Press OK to continue");
-        }
+    public static void invalidDirectoryAlert() {
+        regAlert("Invalid directory", "Please enter a valid directory", "Press OK to continue");
+    }
 
 
-
-    public static boolean yesNoAlert(String title, String header, String context){
-        Alert alert=new Alert(Alert.AlertType.CONFIRMATION);
+    public static boolean yesNoAlert(String title, String header, String context) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(context);
         alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-        Optional<ButtonType> result=alert.showAndWait();
+        Optional<ButtonType> result = alert.showAndWait();
         assert result.isPresent();
         return result.get() == ButtonType.YES;
     }
 
 
-    public static boolean confirmationAlert(String title, String header, String context){
-        Alert alert=new Alert(Alert.AlertType.CONFIRMATION);
+    public static boolean confirmationAlert(String title, String header, String context) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(context);
-        Optional<ButtonType> result=alert.showAndWait();
+        Optional<ButtonType> result = alert.showAndWait();
         assert result.isPresent();
         return result.get() == ButtonType.OK;
     }
 
-    public static void regAlert(String title, String header, String context){
-        Alert alert=new Alert(Alert.AlertType.INFORMATION);
+    public static void regAlert(String title, String header, String context) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(context);
-        Optional<ButtonType> result=alert.showAndWait();
+        Optional<ButtonType> result = alert.showAndWait();
         //maybe need to make buttons do stuff to break out
 
     }
 
-    public static void IOAlert(){
+    public static void IOAlert() {
         regAlert("Unexpected Error", "An unexpected error occured while trying to read or write files", "Press OK to continue");
     }
 

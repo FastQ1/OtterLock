@@ -15,13 +15,13 @@ public class GUILoader extends Application {
     }
 
     @Override
-    public void start (Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
         Parent root = loader.load();
-        this.controller= loader.getController();
+        this.controller = loader.getController();
 
-        Scene scene=new Scene(root);
+        Scene scene = new Scene(root);
 
 //        primaryStage.sizeToScene();
 //        primaryStage.setResizable(false);
@@ -31,10 +31,7 @@ public class GUILoader extends Application {
         primaryStage.centerOnScreen();
 
 
-
     }
-
-
 
 
 }

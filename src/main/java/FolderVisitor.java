@@ -4,38 +4,40 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+//Encrypts/decrypts
 class FolderVisitor extends SimpleFileVisitor<Path> {
 
     public static int numFilesTouched;
     public static int numFilesAltered;
 
-    public enum CryptoMode{
-    ENCRYPT,
-    DECRYPT,
+    public enum CryptoMode {
+        ENCRYPT,
+        DECRYPT,
 //    DEFAULT,
     }
+
     private boolean flag;
     private Path sourceRoot;
     private final CryptoMode mode;
 
     public FolderVisitor(CryptoMode mode) {
-        numFilesTouched=0;
-        this.mode=mode;
-        this.flag=true;
-        }
+        numFilesTouched = 0;
+        this.mode = mode;
+        this.flag = true;
+    }
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        if(flag){
+        if (flag) {
             sourceRoot = dir;
-            System.out.println("Sourceroot in folderVisitor: "+sourceRoot.toString());
-            flag=false;
+//            System.out.println("Sourceroot in folderVisitor: " + sourceRoot.toString());
+            flag = false;
         }
         Path relativizedPath = sourceRoot.relativize(dir);
-            if(TempSettings.choice.equals(TempSettings.duplicateDirectoryChoice.SKIP)){
-                if(TempSettings.exclusionSet.contains(relativizedPath)){
-                    return FileVisitResult.SKIP_SUBTREE;
-                }
+        if (TempSettings.choice.equals(TempSettings.duplicateDirectoryChoice.SKIP)) {
+            if (TempSettings.exclusionSet.contains(relativizedPath)) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
         }
 
         return FileVisitResult.CONTINUE;
@@ -45,29 +47,29 @@ class FolderVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
 
-        if(mode==CryptoMode.ENCRYPT) {
-            if(FileEncrypter.encryptFile(file)){
+        if (mode == CryptoMode.ENCRYPT) {
+            if (FileEncrypter.encryptFile(file)) {
                 numFilesAltered++;
             }
             numFilesTouched++;
             return FileVisitResult.CONTINUE;
         }
-        if(mode==CryptoMode.DECRYPT){
-           if(FileEncrypter.decryptFile(file)){
-               numFilesAltered++;
-           }
+        if (mode == CryptoMode.DECRYPT) {
+            if (FileEncrypter.decryptFile(file)) {
+                numFilesAltered++;
+            }
             numFilesTouched++;
 
             return FileVisitResult.CONTINUE;
 
         }
         numFilesTouched++;
-            return FileVisitResult.CONTINUE;
+        return FileVisitResult.CONTINUE;
     }
-    
+
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) {
-        System.out.println("File visit failed at :"+file.toAbsolutePath());
+        System.out.println("File visit failed at :" + file.toAbsolutePath());
         return FileVisitResult.TERMINATE;
         //Can make this a conditional
     }

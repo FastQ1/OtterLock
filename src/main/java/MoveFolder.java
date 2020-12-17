@@ -18,7 +18,7 @@ class MoveFolder implements FileVisitor<Path> {
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         if (sourceRoot.equals(dir)) {
-            System.out.println("Sourceroot in moveFolder: " + sourceRoot.toString());
+//            System.out.println("Sourceroot in moveFolder: " + sourceRoot.toString());
             return FileVisitResult.CONTINUE;
         }
         Path relativizedPath = sourceRoot.relativize(dir);
@@ -26,7 +26,6 @@ class MoveFolder implements FileVisitor<Path> {
 
         if (TempSettings.choice.equals(TempSettings.duplicateDirectoryChoice.SKIP)) {
             if (TempSettings.exclusionSet.contains(relativizedPath)) {
-                System.out.println("inside conditional");
                 return FileVisitResult.SKIP_SUBTREE;
             }
         }
@@ -42,11 +41,8 @@ class MoveFolder implements FileVisitor<Path> {
             for (Path p : TempSettings.exclusionSet) {
                 System.out.println(p.toString());
             }
-            System.out.println("Inside outer conditional");
-            System.out.println("Relativized path in MoveFolder preVisit: " + relativizedPath + "\n resolved: " + resolvedPath);
 
             if (TempSettings.exclusionSet.contains(relativizedPath)) {
-                System.out.println("inside conditional");
                 if (Files.exists(resolvedPath)) {
                     Files.walkFileTree(resolvedPath, new DirDelete());
                 }
@@ -82,33 +78,32 @@ class MoveFolder implements FileVisitor<Path> {
         Path resolvedPath = targetRoot.resolve(relativizedPath);
 
         System.out.println(resolvedPath.toString());
-        boolean f=Files.exists(resolvedPath);
+        boolean f = Files.exists(resolvedPath);
         System.out.println(f);
         if (f) {
             if (this.skip) {
-            }
-            else if (this.replace) {
+            } else if (this.replace) {
                 Files.delete(resolvedPath);
                 Files.move(file, resolvedPath);
             } else {
-                boolean validChoiceMade=true;
+                boolean validChoiceMade = true;
 
-                do{
+                do {
                     switch (Controller.dupFileAlert(relativizedPath, targetRoot)) {
                         case 1:
                             System.out.println("File Skipped");
-                            validChoiceMade=true;
+                            validChoiceMade = true;
                             break;
                         case 2:
                             System.out.println("File replaced");
                             Files.delete(resolvedPath);
                             Files.move(file, resolvedPath);
-                            validChoiceMade=true;
+                            validChoiceMade = true;
                             break;
                         case 3:
                             System.out.println("All duplicate files will be skipped");
                             skip = true;
-                            validChoiceMade=true;
+                            validChoiceMade = true;
 
                             break;
                         case 4:
@@ -116,16 +111,16 @@ class MoveFolder implements FileVisitor<Path> {
                             Files.delete(resolvedPath);
                             Files.move(file, resolvedPath);
                             replace = true;
-                            validChoiceMade=true;
+                            validChoiceMade = true;
                             break;
                         case 5:
                             Controller.regAlert("Process Terminated", "Process terminated. Your files may be partially moved", "Click to continue");
                             return FileVisitResult.TERMINATE;
                         case 0:
-                            validChoiceMade=false;
+                            validChoiceMade = false;
                             break;
-                }
-                }while(!validChoiceMade);
+                    }
+                } while (!validChoiceMade);
 
 
             }
@@ -140,7 +135,6 @@ class MoveFolder implements FileVisitor<Path> {
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
         System.out.println("File visit failed at :" + file.toAbsolutePath());
         return FileVisitResult.TERMINATE;
-        //Can make this a conditional
     }
 
 }

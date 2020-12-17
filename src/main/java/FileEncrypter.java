@@ -6,36 +6,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+//Most of the work is done in this class
 public class FileEncrypter {
     private static final String fileExtension = ".ottered";
-
-
-//    public static void main(String[] args) throws IOException {
-
-
-//safeEncryptFolder(fileFolder, topSecret);
-//safeDecryptFolder(topSecret,fileFolder);
-
-
-        //        System.out.println(checkForEncryptedFiles(topSecret));;
-//        System.out.println(checkForDecryptedFiles(fileFolder));
-//        Objects.requireNonNull(compareDirectories(fileFolder, topSecret)).forEach(System.out::println);
-//            decryptFolder(fileFolder);
-//    }
 
 
     public static void safeCryptFolder(Path folder, boolean checkingForEncrypted) throws IOException {
         if (FileEncrypter.cryptCheck(folder, checkingForEncrypted)) {
             if (checkingForEncrypted) {
                 FileEncrypter.encryptFolder(folder);
-                int temp=FolderVisitor.numFilesAltered;
-                FolderVisitor.numFilesAltered=0;
+                int temp = FolderVisitor.numFilesAltered;
+                FolderVisitor.numFilesAltered = 0;
                 Controller.regAlert("Success!", temp + " Files Encrypted", "Press OK to continue");
             } else {
                 FileEncrypter.decryptFolder(folder);
-                int temp=FolderVisitor.numFilesAltered;
-                FolderVisitor.numFilesAltered=0;
+                int temp = FolderVisitor.numFilesAltered;
+                FolderVisitor.numFilesAltered = 0;
                 Controller.regAlert("Success!", temp + " Files Decrypted", "Press OK to continue");
             }
         } else {
@@ -47,18 +33,16 @@ public class FileEncrypter {
 
     public static boolean cryptCheck(Path folder, boolean checkingForEncrypted) throws IOException {
 
-        
-        try{
+
+        try {
             if (folder.getParent().toFile().getName().equals("E:") || folder.getParent().toFile().getName().equals("C:")) {
                 System.out.println("Failsafe executed");
                 return false;
             }
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             Controller.regAlert("Error", "Drive detected", "This program does not aim to encrypt an entire drive. Please choose a directory instead");
-                return false;
-            }
-
-
+            return false;
+        }
 
 
         boolean keepGoing = true;
@@ -105,8 +89,8 @@ public class FileEncrypter {
 
                 if (keepGoing) {
                     encryptFolder(folder, locationFolder);
-                    int temp=FolderVisitor.numFilesAltered;
-                    FolderVisitor.numFilesAltered=0;
+                    int temp = FolderVisitor.numFilesAltered;
+                    FolderVisitor.numFilesAltered = 0;
                     Controller.regAlert("Success!", temp + " Files Encrypted.", "Press OK to continue");
                 } else {
                     Controller.regAlert("No Action Made", "No action was made. Your files are unaltered", "Press OK to continue");
@@ -140,8 +124,8 @@ public class FileEncrypter {
             }
             if (keepGoing) {
                 decryptFolder(folder, locationFolder);
-                int temp=FolderVisitor.numFilesAltered;
-                FolderVisitor.numFilesAltered=0;
+                int temp = FolderVisitor.numFilesAltered;
+                FolderVisitor.numFilesAltered = 0;
                 Controller.regAlert("Success!", temp + " Files Decrypted.", "Press OK to continue");
             } else {
                 Controller.regAlert("No Action Made", "No action was made. Your files are unaltered", "Press OK to continue");
@@ -149,9 +133,6 @@ public class FileEncrypter {
         }
     }
 
-
-    //options like it is in main currently
-    //Should include the
 
 
     public static boolean compareDirectorySet(Path source, Path location) throws IOException {
@@ -181,7 +162,7 @@ public class FileEncrypter {
 
 
     public static void encryptFolder(Path folder) throws IOException {
-            Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.ENCRYPT));
+        Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.ENCRYPT));
     }
 
     public static void encryptFolder(Path folder, Path locationFolder) throws IOException {
@@ -191,7 +172,7 @@ public class FileEncrypter {
     }
 
     public static void decryptFolder(Path folder) throws IOException {
-            Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.DECRYPT));
+        Files.walkFileTree(folder, new FolderVisitor(FolderVisitor.CryptoMode.DECRYPT));
     }
 
     public static void decryptFolder(Path folder, Path locationFolder) throws IOException {
@@ -201,11 +182,10 @@ public class FileEncrypter {
 
 
     public static void moveFolder(Path folder, Path locationFolder) throws IOException {
-            Files.walkFileTree(folder, new MoveFolder(folder, locationFolder));
+        Files.walkFileTree(folder, new MoveFolder(folder, locationFolder));
     }
 
     public static Set<Path> checkFolder(Path folder, boolean checkingSource, boolean checkingForEncrypted) throws IOException {
-        //0 checks for encrypted files, 1 checks for decrypted
 
         if (checkingSource) {
             try (Stream<Path> files = Files.walk(folder)) {
@@ -225,9 +205,8 @@ public class FileEncrypter {
         }
     }
 
-
+    //returns a set with relativized directory names of each subdirectory in the path loc
     public static Set<Path> compareDirectories(Path loc) throws IOException {
-        //returns a set with relativized directory names of each subdirectory in the path loc
         HashSet<Path> filesSet = new HashSet<>();
         try (Stream<Path> files = Files.walk(loc)) {
             files
@@ -240,8 +219,8 @@ public class FileEncrypter {
         }
     }
 
+    //compares two subdirectories and returns a set with relativized directories names of any paths in dest also in loc, or null if set is 0
     public static Set<Path> compareDirectories(Path loc, Path dest) throws IOException {
-        //compares two subdirectories and returns a set with relativized directories names of any paths in dest also in loc, or null if set is 0
         HashSet<Path> locList = new HashSet<>(compareDirectories(loc));
         HashSet<Path> destList = new HashSet<>(compareDirectories(dest));
         if ((locList.size() != 0) && (destList.size() != 0)) {
@@ -266,7 +245,7 @@ public class FileEncrypter {
             byte[] encrypted = encrypt(raw);
 
             Files.write(destination, encrypted);
-                Files.delete(source);
+            Files.delete(source);
 
         } else {
             System.out.println("File " + source.toString() + " already contains extension " + fileExtension + ". No action was made on this file");
@@ -282,7 +261,7 @@ public class FileEncrypter {
             byte[] decrypted = decrypt(raw);
 
             Files.write(destination, decrypted);
-                Files.delete(source);
+            Files.delete(source);
 
         } else {
             System.out.println("File " + source.toString() + " does not contain " + fileExtension + ". No action was made on this file");
